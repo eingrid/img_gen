@@ -35,9 +35,9 @@ class RealNVPLoss(nn.Module):
         nll_loss = -(log_prob_z/dims + log_det + log_transform)
         
         # Debug prints
-        print(f"Log prob z (per dim): {(log_prob_z/dims).mean():.2f}")
-        print(f"Log det (per dim): {log_det.mean():.2f}")
-        print(f"Log transform (per dim): {log_transform:.2f}")
-        print(f"Loss (bits per dim): {nll_loss.mean():.2f}")
+        # print(f"Log prob z (per dim): {(log_prob_z/dims).mean():.2f}")
+        # print(f"Log det (per dim): {log_det.mean():.2f}")
+        # print(f"Log transform (per dim): {log_transform:.2f}")
+        # print(f"Loss (bits per dim): {nll_loss.mean():.2f}")
         
         return nll_loss.mean()

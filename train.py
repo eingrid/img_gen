@@ -15,6 +15,7 @@ def train(model, train_loader, criterion, optimizer, device, epoch, logger, log_
         # Forward pass
         optimizer.zero_grad()
         output = model(data)
+
         loss = criterion(output, target)
 
         #gan case
@@ -74,7 +75,6 @@ def validate(model, val_loader, criterion, device, epoch, logger, metric):
             data = data.to(device)
             output = model(data)
             logger.additional_logs(output, epoch)
-            
             # Compute loss and accumulate
             loss = criterion(output, data)
             val_loss += loss.item()

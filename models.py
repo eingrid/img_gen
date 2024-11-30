@@ -11,7 +11,6 @@ class Autoencoder(nn.Module):
         super(Autoencoder, self).__init__()
         self.latent_dim = latent_dim
         
-        # Encoder with more layers and more filters
         self.encoder = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1),  # 3x32x32 -> 64x16x16
             nn.ReLU(),
@@ -34,14 +33,13 @@ class Autoencoder(nn.Module):
             nn.Dropout(dropout_prob),
             
             nn.Flatten(),
-            nn.Linear(1024, latent_dim),  # Increased latent dim
+            nn.Linear(1024, latent_dim),  
             nn.ReLU(),
             nn.Dropout(dropout_prob)
         )
         
-        # Decoder with more layers
         self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, 1024),  # Increased latent dim
+            nn.Linear(latent_dim, 1024),  
             nn.ReLU(),
             nn.Dropout(dropout_prob),
             
@@ -64,7 +62,6 @@ class Autoencoder(nn.Module):
             nn.Dropout(dropout_prob),
             
             nn.ConvTranspose2d(64, 3, kernel_size=4, stride=2, padding=1),  # 64x16x16 -> 3x32x32
-            # nn.Sigmoid()  # Use sigmoid to output normalized pixel values (0 to 1)
         )
 
     def forward(self, x):
@@ -122,7 +119,6 @@ class VAE(nn.Module):
     def __init__(self, latent_dim=2048, dropout_prob=0.3):
         super(VAE, self).__init__()
         self.latent_dim = latent_dim
-        # Encoder with increased capacity
         self.encoder = nn.Sequential(
         nn.Conv2d(3, 64, kernel_size=4, stride=2, padding=1), # 3x32x32 -> 64x16x16
         nn.ReLU(),
@@ -144,10 +140,9 @@ class VAE(nn.Module):
         nn.ReLU(),
         nn.Dropout(dropout_prob)
         )
-        # Separate layers for mean and log variance
         self.fc_mu = nn.Linear(1024, latent_dim)
         self.fc_logvar = nn.Linear(1024, latent_dim)
-        # Decoder with matching capacity
+
         self.decoder = nn.Sequential(
         nn.Linear(latent_dim, 1024), # Match intermediate projection
         nn.ReLU(),
@@ -225,34 +220,23 @@ class VAE(nn.Module):
         # Ensure we return exactly num_samples
         return generated_samples[:num_samples]
 
-# GAN
-import torch
-import torch.nn as nn
 
-# Convolutional Generator
-import torch
-import torch.nn as nn
-
-# Refined Complex Convolutional Generator
 class Generator(nn.Module):
     def __init__(self, latent_dim=128):
         super(Generator, self).__init__()
         
-        # Initial layer to upscale the latent vector
         self.initial = nn.Sequential(
             nn.ConvTranspose2d(latent_dim, 512, 4, 1, 0, bias=False),  # [batch_size, 512, 4, 4]
             nn.BatchNorm2d(512),
             nn.ReLU(True)
         )
         
-        # Upsample to 8x8
         self.upsample1 = nn.Sequential(
             nn.ConvTranspose2d(512, 256, 4, 2, 1, bias=False),  # [batch_size, 256, 8, 8]
             nn.BatchNorm2d(256),
             nn.ReLU(True)
         )
         
-        # Upsample to 16x16 with residual connection
         self.upsample2 = nn.Sequential(
             nn.ConvTranspose2d(256, 128, 4, 2, 1, bias=False),  # [batch_size, 128, 16, 16]
             nn.BatchNorm2d(128),
@@ -260,7 +244,6 @@ class Generator(nn.Module):
         )
         self.residual2 = nn.Conv2d(128, 128, 3, 1, 1, bias=False)  # Residual connection
         
-        # Upsample to 32x32 with another residual connection
         self.upsample3 = nn.Sequential(
             nn.ConvTranspose2d(128, 64, 4, 2, 1, bias=False),  # [batch_size, 64, 32, 32]
             nn.BatchNorm2d(64),
@@ -268,7 +251,6 @@ class Generator(nn.Module):
         )
         self.residual3 = nn.Conv2d(64, 64, 3, 1, 1, bias=False)  # Residual connection
         
-        # Output layer to produce final RGB image
         self.output_layer = nn.Sequential(
             nn.Conv2d(64, 3, 3, 1, 1, bias=False),  # [batch_size, 3, 32, 32]
         )
@@ -294,7 +276,6 @@ class Generator(nn.Module):
         return output
 
 
-# Convolutional Discriminator
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
@@ -344,7 +325,6 @@ class Discriminator(nn.Module):
             nn.Sigmoid()  # Output between [0, 1]
         )
 
-    # Combined forward pass
     def forward(self, x):
         features = self.feature_extractor(x)
         return self.classifier(features)
@@ -427,8 +407,6 @@ class GANModelWrapper(nn.Module):
 
 
 # Normalizing Flow (RealNVP)
-
-
 class AffineCoupling(nn.Module):
     def __init__(self, dim, mask):
         super(AffineCoupling, self).__init__()
@@ -651,5 +629,114 @@ class RealNVPWrapper(nn.Module):
                 generated_samples.append(samples.cpu())
         
         # Concatenate and return exact number of samples
+        generated_samples = torch.cat(generated_samples, dim=0)
+        return generated_samples[:num_samples]
+    
+
+
+class LARGER_VAE(nn.Module):
+    def __init__(self, latent_dim=512, dropout_prob=0.2):
+        super(LARGER_VAE, self).__init__()
+        self.latent_dim = latent_dim
+        
+        # Encoder remains the same
+        self.encoder = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(32),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.Conv2d(32, 64, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.Flatten(),
+            nn.Linear(256 * 2 * 2, 1024),
+            nn.BatchNorm1d(1024),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob)
+        )
+        
+        self.fc_mu = nn.Linear(1024, latent_dim)
+        self.fc_logvar = nn.Linear(1024, latent_dim)
+        
+        self.decoder_linear = nn.Sequential(
+            nn.Linear(latent_dim, 1024),
+            nn.BatchNorm1d(1024),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.Linear(1024, 256 * 2 * 2),
+            nn.BatchNorm1d(256 * 2 * 2),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob)
+        )
+        
+        self.decoder_conv = nn.Sequential(
+            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(128),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1),
+            nn.BatchNorm2d(32),
+            nn.LeakyReLU(0.2),
+            nn.Dropout(dropout_prob),
+            
+            nn.ConvTranspose2d(32, 3, kernel_size=4, stride=2, padding=1),
+            nn.Sigmoid()  # Changed from Tanh to Sigmoid for 0-1 range
+        )
+
+    def encode(self, x):
+        h = self.encoder(x)
+        return self.fc_mu(h), self.fc_logvar(h)
+
+    def decode(self, z):
+        h = self.decoder_linear(z)
+        h = h.view(-1, 256, 2, 2)
+        return self.decoder_conv(h)
+
+    def reparameterize(self, mu, logvar):
+        if self.training:
+            std = torch.exp(0.5 * logvar)
+            eps = torch.randn_like(std)
+            return mu + eps * std
+        return mu
+
+    def forward(self, x):
+        mu, logvar = self.encode(x)
+        z = self.reparameterize(mu, logvar)
+        return self.decode(z), mu, logvar
+
+    def generate(self, num_samples, bs=64, device=None):
+        if device is None:
+            device = next(self.parameters()).device
+            
+        generated_samples = []
+        num_batches = (num_samples + bs - 1) // bs
+        
+        with torch.no_grad():
+            for i in range(num_batches):
+                current_bs = min(bs, num_samples - i * bs)
+                z = torch.randn(current_bs, self.latent_dim, device=device)
+                samples = self.decode(z)
+                generated_samples.append(samples.cpu())
+        
         generated_samples = torch.cat(generated_samples, dim=0)
         return generated_samples[:num_samples]
