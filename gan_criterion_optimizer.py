@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.optim as optim
 import torch
+from mse_loss import CustomBCELoss
 
 class GANOptimizer:
     def __init__(self, generator, discriminator, lr=0.0002, betas=(0.5, 0.999)):
@@ -24,7 +25,7 @@ class GANOptimizer:
 
 
 class GANCriterion:
-    def __init__(self, adversarial_loss=nn.BCELoss()):
+    def __init__(self, adversarial_loss=CustomBCELoss()):
         self.adversarial_loss = adversarial_loss
 
     def __call__(self, output, target=None):
